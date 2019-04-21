@@ -1,0 +1,17 @@
+
+cmake-build-debug-wsl/
+cmake-build-debug/
+CMakeLists.txt
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+.idea/
+
+*.swp
+*.bak
+a.out
+ass1_OS_4760.pdf
+
+
+a.out
