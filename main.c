@@ -1,10 +1,12 @@
 #include <stdio.h>
-#include "tests.h"
 #include <string.h>
 #include <memory.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include "scanner.h"
+#include "parser.h"
 
+FILE * file;
 
 int main (int argc, char **argv){
 
@@ -22,17 +24,9 @@ int main (int argc, char **argv){
         strcat(infile, "\0");
         fp = fopen(infile, "r");
     }
-
-    scanner(fp);
+    file = fp;
+    parser();
     fclose(fp);
-
-    int j = 0;
-    while(1){
-        printf("%s\n", tokenList[ j ].instance);
-        if( !strcmp( tokenList[ j++ ].instance, "EOFtk" ) )
-            break;
-    }
-    free(tokenList);
 
     return 0;
 }

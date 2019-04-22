@@ -21,27 +21,28 @@ typedef struct { char this, next; } Character;
 typedef struct { int  line, tk; } Count;
 
 
-Token * tokenList;
 char instance[ 32 ];
 Character character = { SPACE, SPACE };
 static enum CharacterRank getRank( char );
 enum TokenID currentTkID;
 char  keywords[][8] = {"End", "INT", "IFF", "Let", "Loop", "Read", "Void", "Then", "Begin", "Output", "Return", "Program" };
-static  Count count;
-int stop = 1;
+Count count;
+static int stop;
 
+static Token token;
 
+extern FILE * file;
 
+Token scanner( ){
+    FILE * stream = file;
+    if (ftell(stream) == 0) {
+        count.line = 1;
+        count.tk = 0;
+    }
+    stop = 1;
 
-void scanner( FILE * stream ){
-
-    count.line = 1;
-    count.tk = 0;
-
-    int space;
-    space = 32;
-    tokenList = ( Token * ) malloc( sizeof( Token ) * space );
     while(stop) {
+        if (!stop) break;
         getNextCharacter( stream , 1 );
         switch ( getRank( character.this ) ){
             case digit:
@@ -63,8 +64,8 @@ void scanner( FILE * stream ){
             default:
                 ;
         }
-
     }
+    return token;
 }
 static void commentState(FILE * stream){
     int rank;
@@ -77,7 +78,8 @@ static void commentState(FILE * stream){
 
 static void digitState(){
     int rank = getRank(character.next);
-    if ( rank == whitespace || rank == endOfFile || rank == newLine || rank == comment )
+    if ( rank == whitespace || rank == endOfFile ||
+         rank == newLine || rank == comment || rank == operator )
         finalState();
 }
 static void letterState(){
@@ -159,18 +161,20 @@ static void getNextCharacter( FILE * stream, int isComment){
 static void finalState(){
     if ( currentTkID == IDENTtk && strlen(instance) > 2 && strlen(instance) < 8 )
         keywordCheck();
-    tokenList[ count.tk++ ] = newToken( currentTkID );
+    //tokenList[ count.tk++ ] = newToken( currentTkID );
+    stop = 0;
+    token = newToken( currentTkID );
+    //printf("%s\n",token.instance);
 }
 
 static Token newToken( enum TokenID tkid ){
     Token token;
     token.id = tkid;
     setInstance(tkid);
+    memset( token.instance, 0, sizeof( token.instance ) );
     strcpy(token.instance, instance);
     token.lineNumber = count.line;
-
     memset( instance, 0, sizeof( instance ) );
-
     return token;
 }
 static void getOperatorString(){
@@ -178,64 +182,51 @@ static void getOperatorString(){
         case PLUS_tk:
             strcpy(instance, toString(PLUS_tk) );
             break;
-    }
-    switch ( *instance ){
         case LESS_THAN_tk:
             strcpy(instance, toString(LESS_THAN_tk) );
             break;
-    } switch ( *instance ){
         case GREATER_THAN_tk:
             strcpy(instance, toString(GREATER_THAN_tk) );
             break;
-    } switch ( *instance ){
         case MINUS_tk:
             strcpy(instance, toString(MINUS_tk) );
             break;
-    } switch ( *instance ){
         case ASTERISK_tk:
             strcpy(instance, toString(ASTERISK_tk) );
             break;
-    } switch ( *instance ){
         case SLASH_tk:
             strcpy(instance, toString(SLASH_tk) );
             break;
-    } switch ( *instance ){
         case PERCENT_tk:
             strcpy(instance, toString(PERCENT_tk) );
             break;
-    } switch ( *instance ){
         case DOT_tk:
             strcpy(instance, toString(DOT_tk) );
             break;
-    } switch ( *instance ){
         case OPEN_BRACE_tk:
             strcpy(instance, toString(OPEN_BRACE_tk) );
             break;
-    } switch ( *instance ){
         case OPEN_BRACKET_tk:
             strcpy(instance, toString(OPEN_BRACKET_tk) );
             break;
-    } switch ( *instance ){
         case CLOSE_BRACE_tk:
             strcpy(instance, toString(CLOSE_BRACE_tk) );
             break;
-    } switch ( *instance ){
         case OPEN_PARENTH_tk:
             strcpy(instance, toString(OPEN_PARENTH_tk) );
             break;
-    } switch ( *instance ){
         case CLOSE_PARENTH_tk:
             strcpy(instance, toString(CLOSE_PARENTH_tk) );
             break;
-    } switch ( *instance ){
         case CLOSE_BRACKET_tk:
             strcpy(instance, toString(CLOSE_BRACKET_tk) );
             break;
-    } switch ( *instance ){
         case SEMICOLON_tk:
             strcpy(instance, toString(SEMICOLON_tk) );
+            break;  } switch ( *instance ){
+        case COLON_tk:
+            strcpy(instance, toString(COLON_tk) );
             break;
-    } switch ( *instance ){
         case COMMA_tk:
             strcpy(instance, toString(COMMA_tk) );
             break;

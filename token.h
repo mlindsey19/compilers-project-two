@@ -36,8 +36,24 @@ enum Operator{
     OPEN_BRACE_tk = 123,
     CLOSE_BRACE_tk = 125,
     SEMICOLON_tk = 59,
+    COLON_tk = 58,
     OPEN_BRACKET_tk = 91,
     CLOSE_BRACKET_tk = 93
+};
+
+enum Keyword{
+    Begin_tk,
+    End_tk,
+    Read_tk,
+    Output_tk,
+    Void_tk,
+    Program_tk,
+    IFF_tk,
+    Then_tk,
+    Let_tk,
+    Loop_tk,
+    INT_tk,
+    Return_tk
 };
 
 

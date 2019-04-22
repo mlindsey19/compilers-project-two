@@ -8,7 +8,7 @@
 
 #include "token.h"
 
-void scanner(FILE * stream);
+Token scanner();
 enum CharacterRank{
     digit,
     letter,

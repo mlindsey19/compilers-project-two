@@ -9,19 +9,20 @@
 
 #define NT_sz
 
-typedef struct node
+typedef struct
 {
     int depth;
 
     int isToken;
-    int isEmpty
-    char nonTerm[ NT_sz ];
+    int isEmpty;
     Token token;
 
-    Node * firstChild;
-    Node * leftChild;
-    Node * rightChild;
-    Node * lastChild;
+    struct Node * child_0;
+    struct Node * child_1;
+    struct Node * child_2;
+    struct Node * child_3;
+
+    char nonTerm[ NT_sz ];
 
 } Node;
 
