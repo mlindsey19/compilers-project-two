@@ -230,6 +230,9 @@ static void getOperatorString(){
         case COMMA_tk:
             strcpy(instance, toString(COMMA_tk) );
             break;
+        case EQUAL_tk:
+            strcpy(instance, toString(EQUAL_tk) );
+            break;
     }
 }
 static void setInstance(enum TokenID tkid){

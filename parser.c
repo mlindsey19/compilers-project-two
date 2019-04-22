@@ -50,19 +50,21 @@ static void program(){
         parseError(toString(EOFtk));
 }
 static void vars(){
-    if ( isInstance( tk.instance, toString(INT_tk) ) ) {
+    if ( isInstance( tk.instance, toString( INT_tk ) ) ) {
         tk = scanner();
-        if ( tk.id == IDENTtk)
+        if ( tk.id == IDENTtk ) {
             tk = scanner();
-        else
-            parseError(toString( IDENTtk ) );
-        if ( tk.id == INTtk ) {
-            tk = scanner();
-            vars();
+            if ( tk.id == INTtk ) {
+                tk = scanner();
+                vars();
+            }else
+                parseError( toString( INTtk ) );
         }else
-            parseError( toString( INTtk ) );
-    } else
-        return;
+            parseError( toString( IDENTtk ) );
+
+    }
+
+    return;
 
 }
 static void block(){
@@ -134,20 +136,66 @@ static void out(){
     }else
         parseError(toString( CLOSE_BRACKET_tk) );
 }
+static void read(){
+    if (isInstance( tk.instance, toString( OPEN_BRACKET_tk ) ) ){
+        tk = scanner();
+    }else
+        parseError(toString( OPEN_BRACKET_tk) );
+    if( tk.id == IDENTtk ){
+        tk = scanner();
+    } else
+        parseError( toString( IDENTtk ) );
+    if ( isInstance( tk.instance, toString( CLOSE_BRACKET_tk ) ) ){
+        tk = scanner();
+    }else
+        parseError(toString( CLOSE_BRACKET_tk) );
+    return;
+}
 static void iff(){
-    if (isInstance( tk.instance, toString( irginvrisyrt ))){
-
-    }
+    if ( isInstance( tk.instance, toString( IFF_tk ) ) ){
+        if( isInstance( tk.instance, toString( OPEN_BRACKET_tk ) ) ){
+            tk = scanner();
+            expr();
+            ro();
+            expr();
+            if (isInstance( tk.instance, toString( CLOSE_BRACKET_tk ) ) ){
+                tk = scanner();
+                stat();
+            } else
+                parseError( toString( CLOSE_BRACKET_tk ) );
+        } else
+            parseError( toString( OPEN_BRACKET_tk ) );
+    } else
+        parseError( toString( IFF_tk) );
+    return;
 }
 static void assign(){
-    if (isInstance( tk.instance, toString( irginvrisyrt ))){
-
-    }
+    if( tk.id == IDENTtk ){
+        tk = scanner();
+        if ( isInstance( tk.instance, toString( EQUAL_tk ) ) ) {
+            tk = scanner();
+            expr();
+        } else parseError( toString( EQUAL_tk) );
+    } else parseError( toString( IDENTtk) );
+    return;
 }
 static void loop(){
-    if (isInstance( tk.instance, toString( irginvrisyrt ))){
-
-    }
+    if ( isInstance( tk.instance, toString( Loop_tk ) ) ){
+        if( isInstance( tk.instance, toString( OPEN_BRACKET_tk ) ) ){
+            tk = scanner();
+            expr();
+            ro();
+            expr();
+            if (isInstance( tk.instance, toString( CLOSE_BRACKET_tk ) ) ){
+                tk = scanner();
+                stat();
+            } else
+                parseError( toString( CLOSE_BRACKET_tk ) );
+        } else
+            parseError( toString( OPEN_BRACKET_tk ) );
+    } else
+        parseError( toString( Loop_tk) );
+    return;
 }
 static void expr(){
     a();
@@ -198,14 +246,27 @@ static void r(){
         parseError( "expr, identifier or integer" );
 }
 static void ro(){
-    if (isInstance( tk.instance, toString( irginvrisyrt ))){
+    if (isInstance( tk.instance, toString( LESS_THAN_tk ))){
 
-    }
+    } else if (isInstance( tk.instance, toString( GREATER_THAN_tk ))){
+
+    }else if (isInstance( tk.instance, toString( EQUAL_tk ))){
+        tk = scanner();
+        re();
+    } else
+        parseError("cond operator");
 }
 static void re(){
-    if (isInstance( tk.instance, toString( irginvrisyrt ))){
-
+    if (isInstance( tk.instance, toString( EQUAL_tk ))){
+        return;
     }
+    if (isInstance( tk.instance, toString( LESS_THAN_tk ))){
+        return;
+    }
+    if (isInstance( tk.instance, toString( GREATER_THAN_tk ))){
+        return;
+    }
+    return;
 }
 
 
@@ -226,6 +287,6 @@ static int isInstance(char * a, char *b ){
         return 1;
     return 0;
 }
-static void parseError( char * expected){
+static void parseError( char expected[32]){
     printf("ERROR line: %i -> %s - Expected %s\n", tk.id,  expected);
 }

@@ -38,7 +38,8 @@ enum Operator{
     SEMICOLON_tk = 59,
     COLON_tk = 58,
     OPEN_BRACKET_tk = 91,
-    CLOSE_BRACKET_tk = 93
+    CLOSE_BRACKET_tk = 93,
+    EQUAL_tk = 61
 };
 
 enum Keyword{
