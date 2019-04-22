@@ -13,5 +13,5 @@ cmake_install.cmake
 a.out
 ass1_OS_4760.pdf
 
-
+*.o
 a.out

@@ -6,8 +6,11 @@
 #define PARSER_PARSER_H
 
 #include "token.h"
+#include "node.h"
 
-void parser();
+Node * parser( Node * );
+Node * createNode( char *  );
+
 
 
 #endif //PARSER_PARSER_H

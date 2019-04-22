@@ -9,54 +9,61 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void program();
-static void vars();
-static void block();
-static void stats();
-static void stat();
-static void mStat();
-static void in();
-static void out();
-static void iff();
-static void assign();
-static void loop();
-static void expr();
-static void a();
-static void k();
-static void n();
-static void m();
-static void r();
-static void ro();
-static void re();
-
-
+static Node * program();
+static Node * vars();
+static Node * block();
+static Node * stats();
+static Node * stat();
+static Node * mStat();
+static Node * in();
+static Node * out();
+static Node * iff();
+static Node * assign();
+static Node * loop();
+static Node * expr();
+static Node * a();
+static Node * k();
+static Node * n();
+static Node * m();
+static Node * r();
+static Node * ro();
+static LinkToken * createTokenNode( Token tk );
 
 static int isInstance( char *, char * );
 Token tk;
 static void parseError( char * );
 
-void parser(){
+Node * parser( Node * node ){
+
     tk = scanner();
-    program();
+    node->linkToken - createTokenNode(tk);
+    node->child_0 = program();
+    return node;
 }
 
 
-static void program(){
-    vars();
-    block();
+static Node * program(){
+    Node * node = createNode(toString(program));
+    node->child_0 = vars();
+    node->child_1 = block();
     if ( tk.id == EOFtk )
         printf("Program ok\n");
     else
         parseError(toString(EOFtk));
+    return node;
 }
-static void vars(){
+static Node * vars(){
+    Node * node = createNode(toString(vars));
     if ( isInstance( tk.instance, toString( INT_tk ) ) ) {
+        node->linkToken = createTokenNode(tk);
         tk = scanner();
         if ( tk.id == IDENTtk ) {
+            node->linkToken->link = createTokenNode(tk);
             tk = scanner();
             if ( tk.id == INTtk ) {
+                node->linkToken->link->link = createTokenNode(tk);
                 tk = scanner();
-                vars();
+                node->child_0 = vars();
             }else
                 parseError( toString( INTtk ) );
         }else
@@ -64,222 +71,293 @@ static void vars(){
 
     }
 
-    return;
+    return node;
 
 }
-static void block(){
-    if ( isInstance( tk.instance, toString( Begin_tk ) ) )
+static Node * block(){
+    Node * node = createNode(toString(block));
+
+    if ( isInstance( tk.instance, toString( Begin_tk ) ) ) {
+        node->linkToken = createTokenNode(tk);
         tk = scanner();
-    else
+    }else
         parseError( toString( Begin_tk ) );
 
-    vars();
-    stats();
+    node->child_0 = vars();
+    node->child_1 =  stats();
 
-    if ( isInstance( tk.instance, toString( End_tk ) ) )
+    if ( isInstance( tk.instance, toString( End_tk ) ) ) {
+        node->linkToken->link = createTokenNode(tk);
         tk = scanner();
-    else
+    }else
         parseError( toString( End_tk ) );
-    return;
+    return node;
 }
-static void stats(){
-    stat();
-    if (isInstance(tk.instance, toString( COLON_tk ) ) )
+static Node * stats(){
+    Node * node = createNode(toString(stats));
+
+    node->child_0 = stat();
+    if (isInstance(tk.instance, toString( COLON_tk ) ) ) {
+        node->linkToken = createTokenNode(tk);
         tk = scanner();
-    else
+    }else
         parseError( toString( COLON_tk ) );
-    mStat();
+    node->child_1 = mStat();
+    return node;
 }
-static void stat() {
+static Node * stat() {
+    Node * node = createNode(toString(stat));
+
     if ( isInstance( tk.instance, toString( Read_tk ) ) ) {
+        node->linkToken = createTokenNode(tk);
         tk = scanner();
-        in();
+        node->child_0 =  in();
     } else if ( isInstance( tk.instance, toString( Output_tk ) ) ) {
+        node->linkToken = createTokenNode(tk);
         tk = scanner();
-        out();
+        node->child_0 = out();
     } else if ( isInstance( tk.instance, toString( IFF_tk ) ) )  {
+        node->linkToken = createTokenNode(tk);
         tk = scanner();
-        iff();
+        node->child_0 = iff();
     } else if ( isInstance( tk.instance, toString( Loop_tk ) ) ) {
+        node->linkToken = createTokenNode(tk);
         tk = scanner();
-        loop();
+        node->child_0 = loop();
     } else if ( tk.id == IDENTtk ){
+        node->linkToken = createTokenNode(tk);
         tk = scanner();
-        assign();
+        node->child_0 =  assign();
     } else if( tk.instance, toString( Begin_tk ) ){
+        node->linkToken = createTokenNode(tk);
         tk = scanner();
-        block();
+        node->child_0 = block();
     }else
         parseError( toString( Statment ) );
-    return;
+    return  node;
 }
 
-static void mStat(){
+static Node * mStat(){
+    Node * node = createNode(toString(mStat));
+
     if (isInstance( tk.instance, toString( End_tk ) ) ){
-        return;
+        return node;
     } else
-        stat();
+        node->child_0 = stat();
+    return node;
 }
-static void in(){
-    if (isInstance( tk.instance, toString( irginvrisyrt ) ) ){
+static Node * out(){
+    Node * node = createNode( toString( out ) );
 
-    }
-}
-static void out(){
     if (isInstance( tk.instance, toString( OPEN_BRACKET_tk ) ) ){
+        node->linkToken = createTokenNode(tk);
         tk = scanner();
+        node->child_0 = expr();
+        if (isInstance( tk.instance, toString( CLOSE_BRACKET_tk ) ) ){
+            node->linkToken->link = createTokenNode(tk);
+            tk = scanner();
+        }else
+            parseError( toString( CLOSE_BRACKET_tk ) );
+    }else
+        parseError( toString( OPEN_BRACKET_tk ) );
+
+    return node;
+}
+static Node * in(){
+    Node * node = createNode( toString( in ) );
+
+    if (isInstance( tk.instance, toString( OPEN_BRACKET_tk ) ) ){
+        node->linkToken = createTokenNode(tk);
+        tk = scanner();
+        if( tk.id == IDENTtk ){
+            node->linkToken->link = createTokenNode(tk);
+            tk = scanner();
+            if ( isInstance( tk.instance, toString( CLOSE_BRACKET_tk ) ) ){
+                node->linkToken->link->link = createTokenNode(tk);
+                tk = scanner();
+            }else
+                parseError(toString( CLOSE_BRACKET_tk) );
+        } else
+            parseError( toString( IDENTtk ) );
     }else
         parseError(toString( OPEN_BRACKET_tk) );
-    expr();
-    if (isInstance( tk.instance, toString( CLOSE_BRACKET_tk ) ) ){
-        tk = scanner();
-    }else
-        parseError(toString( CLOSE_BRACKET_tk) );
-}
-static void read(){
-    if (isInstance( tk.instance, toString( OPEN_BRACKET_tk ) ) ){
-        tk = scanner();
-    }else
-        parseError(toString( OPEN_BRACKET_tk) );
-    if( tk.id == IDENTtk ){
-        tk = scanner();
-    } else
-        parseError( toString( IDENTtk ) );
+
     if ( isInstance( tk.instance, toString( CLOSE_BRACKET_tk ) ) ){
         tk = scanner();
     }else
         parseError(toString( CLOSE_BRACKET_tk) );
-    return;
+    return node;
 }
-static void iff(){
+static Node * iff(){
+    Node * node = createNode(toString(iff));
+
     if ( isInstance( tk.instance, toString( IFF_tk ) ) ){
+        node->linkToken = createTokenNode(tk);
         if( isInstance( tk.instance, toString( OPEN_BRACKET_tk ) ) ){
+            node->linkToken->link = createTokenNode(tk);
             tk = scanner();
-            expr();
-            ro();
-            expr();
+            node->child_0 = expr();
+            node->child_1 = ro();
+            node->child_2 = expr();
             if (isInstance( tk.instance, toString( CLOSE_BRACKET_tk ) ) ){
+                node->linkToken->link->link = createTokenNode(tk);
                 tk = scanner();
-                stat();
+                node->child_3 = stat();
             } else
                 parseError( toString( CLOSE_BRACKET_tk ) );
         } else
             parseError( toString( OPEN_BRACKET_tk ) );
     } else
         parseError( toString( IFF_tk) );
-    return;
+    return node;
 }
-static void assign(){
+static Node * assign(){
+    Node * node = createNode(toString(assign));
+
     if( tk.id == IDENTtk ){
+        node->linkToken = createTokenNode(tk);
         tk = scanner();
         if ( isInstance( tk.instance, toString( EQUAL_tk ) ) ) {
+            node->linkToken->link = createTokenNode(tk);
             tk = scanner();
-            expr();
+            node->child_0 = expr();
         } else parseError( toString( EQUAL_tk) );
     } else parseError( toString( IDENTtk) );
-    return;
+    return node;
 }
-static void loop(){
+static Node * loop(){
+    Node * node = createNode(toString(loop));
+
     if ( isInstance( tk.instance, toString( Loop_tk ) ) ){
+        node->linkToken = createTokenNode(tk);
         if( isInstance( tk.instance, toString( OPEN_BRACKET_tk ) ) ){
+            node->linkToken->link = createTokenNode(tk);
             tk = scanner();
-            expr();
-            ro();
-            expr();
+            node->child_0 = expr();
+            node->child_1 = ro();
+            node->child_2 = expr();
             if (isInstance( tk.instance, toString( CLOSE_BRACKET_tk ) ) ){
+                node->linkToken->link->link = createTokenNode(tk);
                 tk = scanner();
-                stat();
+                node->child_3 = stat();
             } else
                 parseError( toString( CLOSE_BRACKET_tk ) );
         } else
             parseError( toString( OPEN_BRACKET_tk ) );
     } else
         parseError( toString( Loop_tk) );
-    return;
+    return node;
 }
-static void expr(){
-    a();
-    k();
+static Node * expr(){
+    Node * node = createNode(toString(expr));
+    node->child_0 =  a();
+    node->child_1 =  k();
+    return node;
 }
-static void k(){
-    if (isInstance( tk.instance, toString( PLUS_tk ))){
-        tk =scanner();
-        expr();
-    } else if (isInstance( tk.instance, toString( MINUS_tk) ) ) {
+static Node * k(){
+    Node * node = createNode(toString(k));
+
+    if ((tk.id == OPtk) && isInstance(tk.instance, toString(MINUS_tk))
+        || isInstance( tk.instance, toString( PLUS_tk ) ) ){
+        node->linkToken = createTokenNode(tk);
         tk = scanner();
-        expr();
+        node->child_0 = expr();
     }
+    return node;
 }
-static void a(){
-    n();
-    if (isInstance( tk.instance, toString( ASTERISK_tk ))){
+static Node * a(){
+    Node * node = createNode(toString(a));
+
+    node->child_0 = n();
+    if ( isInstance( tk.instance, toString( ASTERISK_tk ) ) ){
+        node->linkToken = createTokenNode(tk);
         tk = scanner();
-        a();
+        node->child_1 = a();
     }
+    return node;
 }
-static void n(){
-    m();
+static Node * n(){
+    Node * node = createNode(toString(n));
+
+    node->child_0 = m();
     if (isInstance( tk.instance, toString( SLASH_tk ))){
-        n();
+        node->child_1 = n();
     }
+    return node;
 }
-static void m(){
+static Node * m(){
+    Node * node = createNode(toString(m));
+
     if (isInstance( tk.instance, toString( MINUS_tk ))){
+        node->linkToken = createTokenNode(tk);
         tk=scanner();
-        m();
+        node->child_0 = m();
     } else
-        r();
+        node->child_0 = r();
 }
-static void r(){
+static Node * r(){
+    Node * node = createNode(toString(r));
+
     if ( isInstance( tk.instance, toString( OPEN_BRACKET_tk ))){
-        expr();
+        node->linkToken = createTokenNode(tk);
+        tk = scanner();
+        node->child_0 = expr();
         if ( isInstance( tk.instance, toString( CLOSE_BRACKET_tk ))){
+            node->linkToken->link = createTokenNode(tk);
+            tk = scanner();
         } else
             parseError( toString( OPEN_BRACKET_tk) );
-    } else if( tk.id == IDENTtk ){
+    } else if( tk.id == IDENTtk || tk.id == INTtk ) {
+        node->linkToken = createTokenNode(tk);
         tk = scanner();
-        return;
-    } else if( tk.id == INTtk ) {
-        tk = scanner();
-        return;
     }else
         parseError( "expr, identifier or integer" );
+    return node;
 }
-static void ro(){
-    if (isInstance( tk.instance, toString( LESS_THAN_tk ))){
-
-    } else if (isInstance( tk.instance, toString( GREATER_THAN_tk ))){
-
-    }else if (isInstance( tk.instance, toString( EQUAL_tk ))){
+static Node * ro(){
+    Node * node = createNode(toString(ro));
+    node->linkToken = createTokenNode( tk );
+    if (isInstance( tk.instance, toString( LESS_THAN_tk ) ) ||
+        isInstance( tk.instance, toString( GREATER_THAN_tk ) ) ){
+        return node;
+    }else if (isInstance( tk.instance, toString( EQUAL_tk ) ) ){
         tk = scanner();
-        re();
+        node->linkToken->link = createTokenNode( tk );
+        if (isInstance( tk.instance, toString( EQUAL_tk ) ) ||
+            isInstance( tk.instance, toString( LESS_THAN_tk ) ) ||
+            isInstance( tk.instance, toString( GREATER_THAN_tk ) ) ){
+            tk = scanner();
+            return node;
+        }
     } else
         parseError("cond operator");
 }
-static void re(){
-    if (isInstance( tk.instance, toString( EQUAL_tk ))){
-        return;
-    }
-    if (isInstance( tk.instance, toString( LESS_THAN_tk ))){
-        return;
-    }
-    if (isInstance( tk.instance, toString( GREATER_THAN_tk ))){
-        return;
-    }
-    return;
-}
 
 
 
 
-Node * createNode( ){
+
+Node * createNode( char * nonTerm ){
     Node * newNode = ( Node * ) malloc( sizeof( Node ) );
-    newNode->depth = 0;
-
+    memset( newNode->nonTerm, 0, NT_sz );
+    strcpy( newNode->nonTerm, nonTerm );
     newNode->child_0 = NULL;
     newNode->child_1 = NULL;
     newNode->child_2 = NULL;
     newNode->child_3 = NULL;
+    newNode->linkToken = NULL;
+    return newNode;
+}
+
+static LinkToken * createTokenNode( Token tok ){
+    LinkToken * newLink = ( LinkToken * ) malloc( sizeof( LinkToken ) );
+    newLink->link = NULL;
+    newLink->token = tk;
+//    memset( newLink->token.instance, 0, NT_sz );
+//    strcpy( newLink->token.instance, tk.instance );
+//    newLink->token.lineNumber = tok.lineNumber;
+//    newLink->token.id   = tk.id;
+return newLink;
 }
 
 static int isInstance(char * a, char *b ){
@@ -287,6 +365,8 @@ static int isInstance(char * a, char *b ){
         return 1;
     return 0;
 }
-static void parseError( char expected[32]){
-    printf("ERROR line: %i -> %s - Expected %s\n", tk.id,  expected);
+static void parseError( char * expected ){
+    printf("ERROR line: %i -> %s - Expected %s\n", tk.lineNumber, tk.instance,  expected);
 }
+
+

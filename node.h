@@ -7,15 +7,14 @@
 
 #include "token.h"
 
-#define NT_sz
-
-typedef struct
-{
-    int depth;
-
-    int isToken;
-    int isEmpty;
+#define NT_sz 16
+typedef struct LinkToken{
     Token token;
+    struct LinkToken * link;
+}LinkToken;
+typedef struct Node{
+
+    struct LinkToken * linkToken;
 
     struct Node * child_0;
     struct Node * child_1;
@@ -25,5 +24,7 @@ typedef struct
     char nonTerm[ NT_sz ];
 
 } Node;
+
+
 
 #endif //PARSER_NODE_H
