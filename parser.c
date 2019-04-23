@@ -55,13 +55,12 @@ static Node * program(){
 static Node * vars(){
     Node * node = createNode(toString(vars));
     if ( isInstance( tk.instance, toString( INT_tk ) ) ) {
-        //node->linkToken = createTokenNode(tk);
         tk = scanner();
         if ( tk.id == IDENTtk ) {
-            node->linkToken = createTokenNode(tk);
+            node->linkToken = createTokenNode();
             tk = scanner();
             if ( tk.id == NUMtk ) {
-                node->linkToken->link = createTokenNode(tk);
+                node->linkToken->link = createTokenNode();
                 tk = scanner();
                 node->child_0 = vars();
                 return node;
@@ -77,7 +76,6 @@ static Node * block(){
     Node * node = createNode( toString( block ) );
 
     if ( isInstance( tk.instance, toString( Begin_tk ) ) ) {
-        // node->linkToken = createTokenNode(tk);
         tk = scanner();
     }else
         parseError( toString( Begin_tk ) );
@@ -86,7 +84,6 @@ static Node * block(){
     node->child_1 =  stats();
 
     if ( isInstance( tk.instance, toString( End_tk ) ) ) {
-        //node->linkToken->link = createTokenNode(tk);
         tk = scanner();
     }else
         parseError( toString( End_tk ) );
@@ -97,7 +94,6 @@ static Node * stats(){
 
     node->child_0 = stat();
     if (isInstance(tk.instance, toString( COLON_tk ) ) ) {
-        //node->linkToken = createTokenNode(tk);
         tk = scanner();
     }else
         parseError( toString( COLON_tk ) );
@@ -131,7 +127,6 @@ static Node * mStat(){
     if (   tk.id == IDENTtk ){
         node->child_0 = stat();
         if (isInstance(tk.instance, toString( COLON_tk ) ) ) {
-            //  node->linkToken = createTokenNode(tk);
             tk = scanner();
         }else
             parseError( toString( COLON_tk ) );
@@ -144,14 +139,11 @@ static Node * mStat(){
 static Node * out(){
     Node * node = createNode( toString( out ) );
     if (isInstance(tk.instance, toString(Output_tk ) ) ) {
-    //    node->linkToken = createTokenNode(tk);
         tk = scanner();
         if (isInstance(tk.instance, toString(OPEN_BRACKET_tk))) {
-            //    node->linkToken->link = createTokenNode(tk);
             tk = scanner();
             node->child_0 = expr();
             if (isInstance(tk.instance, toString(CLOSE_BRACKET_tk))) {
-                // node->linkToken->link->link = createTokenNode(tk);
                 tk = scanner();
             } else
                 parseError(toString(CLOSE_BRACKET_tk));
@@ -167,16 +159,13 @@ static Node * in(){
     Node * node = createNode( toString( in ) );
 
     if ( isInstance(tk.instance, toString( Read_tk ) )) {
-      //  node->linkToken = createTokenNode(tk);
         tk = scanner();
         if (isInstance(tk.instance, toString(OPEN_BRACKET_tk))) {
-            // node->linkToken->link = createTokenNode(tk);
             tk = scanner();
-            if (tk.id == IDENTtk) {
-                node->linkToken= createTokenNode(tk);
+            if ( tk.id == IDENTtk && isNotKeyWd( tk.instance ) ) {
+                node->linkToken= createTokenNode();
                 tk = scanner();
                 if (isInstance(tk.instance, toString(CLOSE_BRACKET_tk))) {
-                    //       node->linkToken->link->link->link = createTokenNode(tk);
                     tk = scanner();
                 } else
                     parseError(toString(CLOSE_BRACKET_tk));
@@ -192,16 +181,13 @@ static Node * iff(){
     Node * node = createNode(toString(iff));
 
     if ( isInstance( tk.instance, toString( IFF_tk ) ) ){
-       // node->linkToken = createTokenNode(tk);
         tk= scanner();
         if( isInstance( tk.instance, toString( OPEN_BRACKET_tk ) ) ){
-            // node->linkToken->link = createTokenNode( tk );
             tk = scanner();
             node->child_0 = expr();
             node->child_1 = ro();
             node->child_2 = expr();
             if (isInstance( tk.instance, toString( CLOSE_BRACKET_tk ) ) ){
-                //   node->linkToken->link->link = createTokenNode( tk );
                 tk = scanner();
                 node->child_3 = stat();
             } else
@@ -216,10 +202,9 @@ static Node * assign(){
     Node * node = createNode(toString(assign));
 
     if( tk.id == IDENTtk  && isNotKeyWd( tk.instance )){
-        node->linkToken = createTokenNode(tk);
+        node->linkToken = createTokenNode();
         tk = scanner();
         if ( isInstance( tk.instance, toString( EQUAL_tk ) ) ) {
-            //           node->linkToken->link = createTokenNode(tk);
             tk = scanner();
             node->child_0 = expr();
         } else parseError( toString( EQUAL_tk) );
@@ -230,16 +215,13 @@ static Node * loop(){
     Node * node = createNode(toString(loop));
 
     if ( isInstance( tk.instance, toString( Loop_tk ) ) ){
-      //  node->linkToken = createTokenNode(tk);
         tk = scanner();
         if( isInstance( tk.instance, toString( OPEN_BRACKET_tk ) ) ){
-            //         node->linkToken->link = createTokenNode(tk);
             tk = scanner();
             node->child_0 = expr();
             node->child_1 = ro();
             node->child_2 = expr();
             if (isInstance( tk.instance, toString( CLOSE_BRACKET_tk ) ) ){
-                //           node->linkToken->link->link = createTokenNode(tk);
                 tk = scanner();
                 node->child_3 = stat();
             } else
@@ -261,7 +243,7 @@ static Node * k(){
 
     if ( isInstance(tk.instance, toString(MINUS_tk))
          || isInstance( tk.instance, toString( PLUS_tk ) ) ){
-        node->linkToken = createTokenNode(tk);
+        node->linkToken = createTokenNode();
         tk = scanner();
         node->child_0 = expr();
         return node;
@@ -274,7 +256,7 @@ static Node * a(){
 
     node->child_0 = n();
     if ( isInstance( tk.instance, toString( ASTERISK_tk ) ) ){
-        node->linkToken = createTokenNode(tk);
+        node->linkToken = createTokenNode();
         tk = scanner();
         node->child_1 = a();
     }
@@ -285,7 +267,7 @@ static Node * n(){
 
     node->child_0 = m();
     if (isInstance( tk.instance, toString( SLASH_tk ))){
-        node->linkToken =createTokenNode(tk);
+        node->linkToken =createTokenNode();
         tk = scanner();
         node->child_1 = n();
     }
@@ -295,7 +277,7 @@ static Node * m(){
     Node * node = createNode(toString(m));
 
     if (isInstance( tk.instance, toString( MINUS_tk ))){
-        node->linkToken = createTokenNode(tk);
+        node->linkToken = createTokenNode();
         tk=scanner();
         node->child_0 = m();
     } else
@@ -306,16 +288,14 @@ static Node * r(){
     Node * node = createNode(toString(r));
 
     if ( isInstance( tk.instance, toString( OPEN_BRACKET_tk ))){
-   //     node->linkToken = createTokenNode(tk);
         tk = scanner();
         node->child_0 = expr();
         if ( isInstance( tk.instance, toString( CLOSE_BRACKET_tk ))){
-      //      node->linkToken->link = createTokenNode(tk);
             tk = scanner();
         } else
             parseError( toString( OPEN_BRACKET_tk) );
-    } else if( tk.id == IDENTtk || tk.id == NUMtk ) {
-        node->linkToken = createTokenNode(tk);
+    } else if( tk.id == NUMtk || ( tk.id == IDENTtk && isNotKeyWd( tk.instance ) ) ) {
+        node->linkToken = createTokenNode();
         tk = scanner();
     }else
         parseError( "expr, identifier or integer" );

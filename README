@@ -27,6 +27,14 @@ parser and scanner - returns a tree based on BNF:
 
 <mStat>, <vars> return NULL if empty
 
+invoke with ./frontEnd [filename]
+            ./frontEnd < [filename]
+            ./frontEnd
+      No file options read from the keyboard ^D to simulate EOF on linux
+      .input1 extension is optional ./frontEnd t4 or ./frontEnd t4.input1
+
+the first Node is the filename fallowed by program ( stdin if keyboard used )
+
 
 
 Lexical Definitions
@@ -48,3 +56,51 @@ Integers
     any sequence of decimal digits, no sign, no decimal point
     you may assume no number longer than 8 characters
 Comments start with \ and end with new line
+
+
+*******************************E X A M P L E*********************************
+
+INT X1 1 \ see possible tree
+INT X2 2
+Begin
+  INT X3 3
+  INT X4 4
+  Read [ X1 ] :
+  X1 = 1 + 2 :
+  Output [ 1 ] :
+End
+
+Program ok
+< t4.input1 >
+-- < program >
+-- -- < vars >  X1   1
+-- -- -- < vars >  X2   2
+-- -- < block >
+-- -- -- < vars >  X3   3
+-- -- -- -- < vars >  X4   4
+-- -- -- < stats >
+-- -- -- -- < stat >
+-- -- -- -- -- < in >  X1
+-- -- -- -- < mStat >
+-- -- -- -- -- < stat >
+-- -- -- -- -- -- < assign >  X1
+-- -- -- -- -- -- -- < expr >
+-- -- -- -- -- -- -- -- < a >
+-- -- -- -- -- -- -- -- -- < n >
+-- -- -- -- -- -- -- -- -- -- < m >
+-- -- -- -- -- -- -- -- -- -- -- < r >  1
+-- -- -- -- -- -- -- -- < k >  PLUS_tk
+-- -- -- -- -- -- -- -- -- < expr >
+-- -- -- -- -- -- -- -- -- -- < a >
+-- -- -- -- -- -- -- -- -- -- -- < n >
+-- -- -- -- -- -- -- -- -- -- -- -- < m >
+-- -- -- -- -- -- -- -- -- -- -- -- -- < r >  2
+-- -- -- -- -- < mStat >
+-- -- -- -- -- -- < stat >
+-- -- -- -- -- -- -- < out >
+-- -- -- -- -- -- -- -- < expr >
+-- -- -- -- -- -- -- -- -- < a >
+-- -- -- -- -- -- -- -- -- -- < n >
+-- -- -- -- -- -- -- -- -- -- -- < m >
+-- -- -- -- -- -- -- -- -- -- -- -- < r >  1
+

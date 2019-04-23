@@ -132,10 +132,12 @@ static void getNextCharacter( FILE * stream, int isComment){
         character.next = ( char ) fgetc( stream );
 
     if ( strlen(instance) == 0 && isComment){
-        switch ( getRank( character.this ) ){
+        switch ( getRank( character.this ) ) {
             case letter:
-                if ( islower( character.this ) )
-                    printf("ERROR: id token must start with upper case. line -> %i\n",count.line);
+                if (islower(character.this)) {
+                    printf("ERROR: id token must start with upper case. line -> %i\n", count.line);
+                    exit(-4);
+                }
                 currentTkID = IDENTtk;
                 break;
             case operator:
