@@ -142,7 +142,7 @@ static void getNextCharacter( FILE * stream, int isComment){
                 currentTkID = OPtk;
                 break;
             case digit:
-                currentTkID = INTtk;
+                currentTkID = NUMtk;
                 break;
             case newLine:
                 count.line++;
