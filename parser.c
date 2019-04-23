@@ -27,7 +27,9 @@ static Node * n();
 static Node * m();
 static Node * r();
 static Node * ro();
-static LinkToken * createTokenNode( Token tk );
+static LinkToken * createTokenNode();
+static int isNotKeyWd(char * check);
+
 
 static int isInstance( char *, char * );
 Token tk;
@@ -68,7 +70,7 @@ static Node * vars(){
         }else
             parseError( toString( IDENTtk ) );
     }
-    return node;
+    return NULL;
 
 }
 static Node * block(){
@@ -115,7 +117,7 @@ static Node * stat() {
         node->child_0 = loop();
     } else if(isInstance( tk.instance, toString( Begin_tk ) ) ){
         node->child_0 = block();
-    } else if ( tk.id == IDENTtk ){
+    } else if ( tk.id == IDENTtk && isNotKeyWd(tk.instance)){
         node->child_0 =  assign();
     }else
         parseError( toString( Statment ) );
@@ -213,7 +215,7 @@ static Node * iff(){
 static Node * assign(){
     Node * node = createNode(toString(assign));
 
-    if( tk.id == IDENTtk ){
+    if( tk.id == IDENTtk  && isNotKeyWd( tk.instance )){
         node->linkToken = createTokenNode(tk);
         tk = scanner();
         if ( isInstance( tk.instance, toString( EQUAL_tk ) ) ) {
@@ -298,7 +300,7 @@ static Node * m(){
         node->child_0 = m();
     } else
         node->child_0 = r();
-    return NULL;
+    return node;
 }
 static Node * r(){
     Node * node = createNode(toString(r));
@@ -341,9 +343,6 @@ static Node * ro(){
 }
 
 
-
-
-
 Node * createNode( char * nonTerm ){
     Node * newNode = ( Node * ) malloc( sizeof( Node ) );
     memset( newNode->nonTerm, 0, NT_sz );
@@ -356,7 +355,7 @@ Node * createNode( char * nonTerm ){
     return newNode;
 }
 
-static LinkToken * createTokenNode( Token tok ){
+static LinkToken * createTokenNode(){
     LinkToken * newLink = ( LinkToken * ) malloc( sizeof( LinkToken ) );
     newLink->link = NULL;
     newLink->token = tk;
@@ -374,6 +373,21 @@ static int isInstance(char * a, char *b ){
 }
 static void parseError( char * expected ){
     printf("ERROR line: %i -> %s - Expected %s\n", tk.lineNumber, tk.instance,  expected);
+    exit(-15);
 }
 
 
+extern const char  keywords[][8];
+
+static int isNotKeyWd(char * check){
+    int i;
+    int x = strlen(check);
+    char temp[32];
+    strcpy(temp,check);
+    temp[ x - 3] = 0;
+    for (i = 0 ; i < 12; i++){
+        if ( strcmp( temp, keywords[ i ] ) == 0 )
+        return 0;
+    }
+    return 1; //true
+}

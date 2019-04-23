@@ -4,7 +4,7 @@
 
 CC = gcc
 CFLAGS = -g -Wall
-OBJ = main.o scanner.o parser.o
+OBJ = main.o scanner.o parser.o testTree.o
 
 frontEnd: $(OBJ)
 	$(CC)  $(CFLAGS) -o frontEnd $(OBJ)

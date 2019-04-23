@@ -7,7 +7,6 @@
 
 #define EOL '\n'
 #define SPACE ' '
-
 enum TokenID{
     EOFtk,
     OPtk,

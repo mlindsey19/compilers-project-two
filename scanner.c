@@ -223,7 +223,7 @@ static void getOperatorString(){
             break;
         case SEMICOLON_tk:
             strcpy(instance, toString(SEMICOLON_tk) );
-            break;  } switch ( *instance ){
+            break;
         case COLON_tk:
             strcpy(instance, toString(COLON_tk) );
             break;
